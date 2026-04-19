@@ -24,7 +24,7 @@ services:
 
   # Watchtower automatically pulls new images and restarts containers
   watchtower:
-    image: containrrr/watchtower
+    image: containrrr/watchtower:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
