@@ -18,7 +18,7 @@ RUN set -eux; \
 		fi
 
 # Patch ApiBaseUrl in appsettings.json so the Blazor client calls the correct API when running in Docker
-ARG API_BASE_URL=http://localhost:5219/
+ARG API_BASE_URL=/
 RUN sed -i "s|https://localhost:7195/|${API_BASE_URL}|g" /app/publish/wwwroot/appsettings.json
 
 # Ensure runtime loader `dotnet.js` exists (some dynamic imports expect non-hashed name)
