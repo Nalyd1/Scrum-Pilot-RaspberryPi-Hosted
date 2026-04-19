@@ -72,7 +72,7 @@ namespace ScrumPilot.API.Services
                 var ollamaModel = _configuration["OllamaModel"];
 
                 if (string.IsNullOrEmpty(ollamaBaseUrl))
-                    throw new InvalidOperationException("No AI provider configured. Set GeminiApiKey or OllamaBaseUrl.");
+                    throw new InvalidOperationException("AI features are unavailable. No AI API key or Ollama instance is configured.");
 
                 responseContent = await CallOllamaApiAsync(ollamaBaseUrl, ollamaModel, prompt);
             }
@@ -113,7 +113,7 @@ namespace ScrumPilot.API.Services
                 var ollamaModel = _configuration["OllamaModel"];
 
                 if (string.IsNullOrEmpty(ollamaBaseUrl))
-                    throw new InvalidOperationException("No AI provider configured. Set GeminiApiKey or OllamaBaseUrl.");
+                    throw new InvalidOperationException("AI features are unavailable. No AI API key or Ollama instance is configured.");
 
                 responseContent = await CallOllamaApiAsync(ollamaBaseUrl, ollamaModel, prompt);
             }

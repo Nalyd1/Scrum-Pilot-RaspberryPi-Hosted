@@ -53,16 +53,30 @@ builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 
 // Add CORS policy for Blazor WebAssembly
+var allowedOrigins = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+{
+    "http://localhost:5199",
+    "http://127.0.0.1:5199",
+    "http://localhost:5219",
+    "https://localhost:7195",
+    "https://localhost:7280",
+    "https://127.0.0.1:7280",
+    "https://scrumpilot-web.onrender.com"
+};
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazor", policy =>
-        policy.WithOrigins(
-                "http://localhost:5199",
-                "http://127.0.0.1:5199",
-                "https://localhost:7280",
-                "https://127.0.0.1:7280",
-                "https://scrumpilot-web.onrender.com"
-            )
+        policy.SetIsOriginAllowed(origin =>
+            {
+                if (allowedOrigins.Contains(origin)) return true;
+
+                // Also allow Tailscale hostnames and local network IPs
+                var uri = new Uri(origin);
+                return uri.Host.EndsWith(".ts.net")
+                    || uri.Host.StartsWith("192.168.")
+                    || uri.Host.StartsWith("100.");  // Tailscale CGNAT range
+            })
             .AllowAnyHeader()
             .AllowAnyMethod()
     );
@@ -79,13 +93,26 @@ using (var scope = app.Services.CreateScope())
     // Apply migrations for both Postgres (Render) and SQLite (local dev)
     context.Database.Migrate();
 
-    // Seed database with initial data (seeders are idempotent)
-    DatabaseSeeder.SeedDatabase(context);
-
-    // Seed Identity users and roles
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    // Ensure Identity roles exist (needed for registration to work)
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    await DatabaseSeeder.SeedUsersAsync(userManager, roleManager);
+    string[] roles = ["Admin", "Developer"];
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+            Console.WriteLine($"[STARTUP] Created role: {role}");
+        }
+    }
+
+    // Only seed sample data in Development; production starts with an empty database
+    if (app.Environment.IsDevelopment())
+    {
+        DatabaseSeeder.SeedDatabase(context);
+
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        await DatabaseSeeder.SeedUsersAsync(userManager, roleManager);
+    }
 }
 
 // Configure the HTTP request pipeline.

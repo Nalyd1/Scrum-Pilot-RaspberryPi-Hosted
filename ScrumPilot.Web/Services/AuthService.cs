@@ -29,6 +29,21 @@ namespace ScrumPilot.Web.Services
             return true;
         }
 
+        public async Task<(bool Success, string? Error)> RegisterAsync(RegisterRequest request)
+        {
+            var response = await _http.PostAsJsonAsync("api/auth/register", request);
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                return (false, error);
+            }
+
+            var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
+            await _js.InvokeVoidAsync("localStorage.setItem", "authToken", loginResponse!.Token);
+            _authStateProvider.NotifyAuthChanged(loginResponse.Token);
+            return (true, null);
+        }
+
         public async Task LogoutAsync()
         {
             await _js.InvokeVoidAsync("localStorage.removeItem", "authToken");
