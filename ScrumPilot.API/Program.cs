@@ -137,7 +137,10 @@ if (app.Environment.IsDevelopment())
 
 // Use CORS policy
 app.UseCors("AllowBlazor");
-app.UseHttpsRedirection();
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

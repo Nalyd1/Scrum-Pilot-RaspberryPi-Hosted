@@ -28,7 +28,11 @@ namespace ScrumPilot.Data.Extensions
                 }
                 else
                 {
-                    options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
+                    // Use CONNECTION_STRING env var if set (e.g., Docker volume path),
+                    // otherwise fall back to appsettings.json default
+                    var connStr = Environment.GetEnvironmentVariable("CONNECTION_STRING")
+                        ?? configuration.GetConnectionString("DefaultConnection");
+                    options.UseSqlite(connStr);
                 }
                 // Suppress pending model changes warning — the value converter change is schema-identical
                 // to the previous OwnsMany.ToJson() approach (both use a TEXT column).

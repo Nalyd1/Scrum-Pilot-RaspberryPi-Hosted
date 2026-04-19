@@ -42,6 +42,9 @@ COPY --from=build /app/publish/wwwroot /usr/share/nginx/html
 # copy custom nginx config to enable SPA fallback
 # nginx.conf lives in the ScrumPilot.Web folder relative to the build context
 COPY ScrumPilot.Web/nginx.conf /etc/nginx/conf.d/default.conf
+# copy entrypoint that patches API_BASE_URL at runtime
+COPY ScrumPilot.Web/docker-entrypoint.sh /docker-entrypoint.d/40-patch-api-url.sh
+RUN chmod +x /docker-entrypoint.d/40-patch-api-url.sh
 RUN set -eux; \
 	for f in /usr/share/nginx/html/_framework/dotnet.*.js; do \
 		if [ -f "$f" ]; then \
