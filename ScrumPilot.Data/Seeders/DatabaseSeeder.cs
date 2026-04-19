@@ -26,12 +26,6 @@ namespace ScrumPilot.Data.Seeders
 
             Console.WriteLine("[SEEDER] Seeding epics...");
 
-            context.Epics.Add(new Epic
-            {
-                Name = "Scrum Board Filtering",
-                DateCreated = DateTime.UtcNow
-            });
-
             context.SaveChanges();
             Console.WriteLine("[SEEDER] Successfully seeded epics.");
         }

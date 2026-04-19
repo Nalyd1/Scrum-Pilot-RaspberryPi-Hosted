@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ScrumPilot.API.Services;
 using ScrumPilot.Data.Repositories;
 using ScrumPilot.Shared.Models;
 
@@ -8,17 +9,19 @@ namespace ScrumPilot.API.Controllers
     [Route("api/[controller]")]
     public class SprintController : ControllerBase
     {
+        private readonly ISprintService _sprintService;
         private readonly ISprintRepository _sprintRepository;
 
-        public SprintController(ISprintRepository sprintRepository)
+        public SprintController(ISprintService sprintService, ISprintRepository sprintRepository)
         {
+            _sprintService = sprintService;
             _sprintRepository = sprintRepository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Sprint>>> GetAll()
+        public async Task<ActionResult<IEnumerable<Sprint>>> GetAllSprints()
         {
-            var sprints = await _sprintRepository.GetAllAsync();
+            var sprints = await _sprintService.GetAllSprintsAsync();
             return Ok(sprints);
         }
 

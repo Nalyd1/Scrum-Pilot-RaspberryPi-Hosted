@@ -21,7 +21,7 @@ public class MetricsDashboardService : IMetricsDashboardService
 
     public async Task<SprintSummaryDto?> GetSprintSummaryAsync(int sprintId)
     {
-        var allSprints = await _sprints.GetAllSprintsAsync();
+        var allSprints = await _sprints.GetAllAsync();
         var sprint = allSprints.FirstOrDefault(s => s.SprintId == sprintId);
         if (sprint is null) return null;
 
@@ -49,7 +49,7 @@ public class MetricsDashboardService : IMetricsDashboardService
 
     public async Task<List<BurndownPoint>> GetBurndownDataAsync(int sprintId)
     {
-        var allSprints = await _sprints.GetAllSprintsAsync();
+        var allSprints = await _sprints.GetAllAsync();
         var sprint = allSprints.FirstOrDefault(s => s.SprintId == sprintId);
         if (sprint?.StartDate is null || sprint.EndDate is null) return [];
 
@@ -148,7 +148,7 @@ public class MetricsDashboardService : IMetricsDashboardService
 
     public async Task<List<VelocityPoint>> GetVelocityDataAsync(int? currentSprintId = null)
     {
-        var allSprints = (await _sprints.GetAllSprintsAsync()).ToList();
+        var allSprints = (await _sprints.GetAllAsync()).ToList();
 
         // Upper bound: if a sprint is selected use its start date so we show
         // sprints up to and including it (open sprints are included this way).
@@ -188,7 +188,7 @@ public class MetricsDashboardService : IMetricsDashboardService
 
     public async Task<List<BugTrendPoint>> GetBugTrendAsync(int sprintId)
     {
-        var allSprints = await _sprints.GetAllSprintsAsync();
+        var allSprints = await _sprints.GetAllAsync();
         var sprint = allSprints.FirstOrDefault(s => s.SprintId == sprintId);
         if (sprint?.StartDate is null) return [];
 

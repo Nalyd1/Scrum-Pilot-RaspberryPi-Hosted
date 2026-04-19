@@ -41,6 +41,14 @@ builder.Services.AddAuthorizationBuilder()
         .RequireAuthenticatedUser()
         .Build());
 
+// Add repositories to the container.
+builder.Services.AddScoped<ISprintRepository, SprintRepository>();
+builder.Services.AddScoped<IEpicRepository, EpicRepository>();
+builder.Services.AddScoped<IPbiRepository, PbiRepository>();
+builder.Services.AddScoped<IPbiHistoryRepository, PbiHistoryRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<IDashboardPreferenceRepository, DashboardPreferenceRepository>();
+
 // Add services to the container.
 builder.Services.AddScoped<ISprintService, SprintService>();
 builder.Services.AddScoped<IEpicService, EpicService>();
@@ -108,8 +116,9 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    // Only seed sample data in Development; production starts with an empty database
-    if (app.Environment.IsDevelopment())
+    // Only seed sample data in Development (and when SCRUMPILOT_SKIP_SEED is not set)
+    var skipSeed = Environment.GetEnvironmentVariable("SCRUMPILOT_SKIP_SEED");
+    if (app.Environment.IsDevelopment() && !string.Equals(skipSeed, "true", StringComparison.OrdinalIgnoreCase))
     {
         DatabaseSeeder.SeedDatabase(context);
 

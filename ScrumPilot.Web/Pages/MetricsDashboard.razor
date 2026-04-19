@@ -9,10 +9,10 @@
 
     <div class="metrics-topbar">
         <div class="topbar-left">
-            <MudText Typo="Typo.h6" Style="color:#e6edf3; font-weight:600; white-space:nowrap;">Metrics Dashboard</MudText>
+            <MudText Typo="Typo.h6" Style="font-weight:600; white-space:nowrap;">Metrics Dashboard</MudText>
             @if (_selectedSprint?.SprintGoal is { Length: > 0 } goal)
             {
-                <MudText Typo="Typo.caption" Style="color:#8b949e; white-space:nowrap; margin-left:8px;">@goal</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary" Style="white-space:nowrap; margin-left:8px;">@goal</MudText>
             }
         </div>
         <div class="topbar-right">
@@ -47,7 +47,7 @@
                 <MudTooltip Text="Dashboard Settings">
                     <MudIconButton Icon="@Icons.Material.Filled.Settings"
                                    Size="Size.Medium"
-                                   Style="color:#8b949e;"
+                                   Color="Color.Secondary"
                                    @onclick="ToggleSettings" />
                 </MudTooltip>
 
@@ -59,7 +59,8 @@
                             <span class="settings-title">Widgets</span>
                             <MudIconButton Icon="@Icons.Material.Filled.Close"
                                            Size="Size.Small"
-                                           Style="color:#8b949e; margin:-4px;"
+                                           Color="Color.Secondary"
+                                           Style="margin:-4px;"
                                            @onclick="CloseSettings" />
                         </div>
                         <div class="settings-list">
@@ -78,7 +79,8 @@
                         <div class="settings-footer">
                             <MudButton Variant="Variant.Text"
                                        Size="Size.Small"
-                                       Style="color:#8b949e; font-size:0.75rem;"
+                                       Color="Color.Secondary"
+                                       Style="font-size:0.75rem;"
                                        @onclick="ResetPreferences">Reset to defaults</MudButton>
                         </div>
                     </div>
@@ -91,7 +93,7 @@
     {
         <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Style="height:60vh;">
             <MudProgressCircular Indeterminate="true" Size="Size.Large" />
-            <MudText Class="mt-4" Typo="Typo.subtitle1" Style="color:#8b949e;">Loading metrics…</MudText>
+            <MudText Class="mt-4" Typo="Typo.subtitle1" Color="Color.Secondary">Loading metrics…</MudText>
         </MudStack>
     }
     else

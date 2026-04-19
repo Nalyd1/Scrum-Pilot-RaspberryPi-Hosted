@@ -1,0 +1,193 @@
+@page "/sprints"
+@inject HttpClient Http
+
+<PageTitle>Projects — ScrumPilot</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <div class="d-flex align-center justify-space-between mb-4">
+        <MudText Typo="Typo.h4">Projects</MudText>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="OpenCreateDialog">
+            New Project
+        </MudButton>
+    </div>
+
+    @if (_loading)
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+    }
+    else if (_sprints is null || !_sprints.Any())
+    {
+        <MudAlert Severity="Severity.Info">No Projects yet. Create one to get started.</MudAlert>
+    }
+    else
+    {
+        <MudGrid>
+            @foreach (var sprint in _sprints)
+            {
+                <MudItem xs="12" sm="6" md="4">
+                    <MudCard Elevation="3" Class="sprint-card">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">@(sprint.SprintGoal ?? $"Sprint {sprint.SprintId}")</MudText>
+                                <MudChip T="string"
+                                         Color="@(sprint.IsOpen ? Color.Success : Color.Default)"
+                                         Size="Size.Small">
+                                    @(sprint.IsOpen ? "Open" : "Closed")
+                                </MudChip>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                @if (sprint.StartDate.HasValue && sprint.EndDate.HasValue)
+                                {
+                                    @($"{sprint.StartDate.Value:MMM d, yyyy} — {sprint.EndDate.Value:MMM d, yyyy}")
+                                }
+                                else
+                                {
+                                    @("No dates set")
+                                }
+                            </MudText>
+                            @if (sprint.DateClosed.HasValue)
+                            {
+                                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-1">
+                                    Closed: @sprint.DateClosed.Value.ToString("MMM d, yyyy")
+                                </MudText>
+                            }
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Primary"
+                                       Size="Size.Small"
+                                       OnClick="() => OpenEditDialog(sprint)">
+                                Edit
+                            </MudButton>
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Error"
+                                       Size="Size.Small"
+                                       OnClick="() => DeleteSprint(sprint.SprintId)">
+                                Delete
+                            </MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+</MudContainer>
+
+@* ── Create / Edit Dialog ── *@
+<MudDialog @bind-Visible="_dialogVisible" Options="new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true }">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@(_isEditing ? "Edit Sprint" : "New Sprint")</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="_editModel.SprintGoal"
+                      Label="Sprint Goal"
+                      Variant="Variant.Outlined"
+                      Class="mb-3" />
+        <MudDatePicker @bind-Date="_startDate"
+                       Label="Start Date"
+                       Variant="Variant.Outlined"
+                       Class="mb-3" />
+        <MudDatePicker @bind-Date="_endDate"
+                       Label="End Date"
+                       Variant="Variant.Outlined"
+                       Class="mb-3" />
+        <MudSwitch @bind-Value="_editModel.IsOpen"
+                   Label="Open"
+                   Color="Color.Primary" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseDialog">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="SaveSprint"
+                   Disabled="_saving">
+            @(_saving ? "Saving…" : "Save")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private List<Sprint>? _sprints;
+    private bool _loading = true;
+    private bool _dialogVisible;
+    private bool _isEditing;
+    private bool _saving;
+    private Sprint _editModel = new() { SprintGoal = "" };
+    private DateTime? _startDate;
+    private DateTime? _endDate;
+
+    protected override async Task OnInitializedAsync() => await LoadSprints();
+
+    private async Task LoadSprints()
+    {
+        _loading = true;
+        try
+        {
+            _sprints = await Http.GetFromJsonAsync<List<Sprint>>("api/sprint");
+        }
+        catch
+        {
+            _sprints = new();
+        }
+        _loading = false;
+    }
+
+    private void OpenCreateDialog()
+    {
+        _isEditing = false;
+        _editModel = new Sprint { SprintGoal = "", IsOpen = true };
+        _startDate = DateTime.Today;
+        _endDate = DateTime.Today.AddDays(14);
+        _dialogVisible = true;
+    }
+
+    private void OpenEditDialog(Sprint sprint)
+    {
+        _isEditing = true;
+        _editModel = new Sprint
+        {
+            SprintId = sprint.SprintId,
+            SprintGoal = sprint.SprintGoal,
+            StartDate = sprint.StartDate,
+            EndDate = sprint.EndDate,
+            IsOpen = sprint.IsOpen,
+            DateClosed = sprint.DateClosed
+        };
+        _startDate = sprint.StartDate;
+        _endDate = sprint.EndDate;
+        _dialogVisible = true;
+    }
+
+    private void CloseDialog() => _dialogVisible = false;
+
+    private async Task SaveSprint()
+    {
+        _saving = true;
+        _editModel.StartDate = _startDate;
+        _editModel.EndDate = _endDate;
+
+        if (_isEditing)
+        {
+            await Http.PutAsJsonAsync($"api/sprint/{_editModel.SprintId}", _editModel);
+        }
+        else
+        {
+            await Http.PostAsJsonAsync("api/sprint", _editModel);
+        }
+
+        _dialogVisible = false;
+        _saving = false;
+        await LoadSprints();
+    }
+
+    private async Task DeleteSprint(int id)
+    {
+        await Http.DeleteAsync($"api/sprint/{id}");
+        await LoadSprints();
+    }
+}

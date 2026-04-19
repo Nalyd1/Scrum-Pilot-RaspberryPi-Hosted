@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using ScrumPilot.API.Controllers;
 using ScrumPilot.API.Services;
+using ScrumPilot.Data.Repositories;
 using ScrumPilot.Shared.Models;
 using Xunit;
 
@@ -10,12 +11,14 @@ namespace ScrumPilot.UnitTests.Backend.ControllerTests
     public class SprintControllerTests
     {
         private readonly ISprintService _mockSprintService;
+        private readonly ISprintRepository _mockSprintRepository;
         private readonly SprintController _controller;
 
         public SprintControllerTests()
         {
             _mockSprintService = Substitute.For<ISprintService>();
-            _controller = new SprintController(_mockSprintService);
+            _mockSprintRepository = Substitute.For<ISprintRepository>();
+            _controller = new SprintController(_mockSprintService, _mockSprintRepository);
         }
 
         [Fact]

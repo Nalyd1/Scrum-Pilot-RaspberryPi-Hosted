@@ -15,7 +15,7 @@
             </div>
             <div class="velocity-stat-sep">→</div>
             <div class="velocity-stat">
-                <span class="velocity-stat-value" style="color:#00d4ff;">@_recommended</span>
+                <span class="velocity-stat-value" style="color:var(--mud-palette-primary);">@_recommended</span>
                 <span class="velocity-stat-label">recommended next sprint</span>
             </div>
             @if (_points.Count >= 2)
@@ -128,24 +128,24 @@
                     {
                         Text = $"Avg {avg} pts",
                         BorderColor = "#f59e0b",
-                        Style = new Style { Color = "#f59e0b", Background = "#161b22", FontSize = "11px" }
+                        Style = new Style { Color = "#f59e0b", Background = "transparent", FontSize = "11px" }
                     }
                 }
             ]
         },
         Xaxis = new XAxis
         {
-            Labels = new XAxisLabels { Style = new AxisLabelStyle { Colors = "#8b949e", FontSize = "11px" } }
+            Labels = new XAxisLabels { Style = new AxisLabelStyle { Colors = "#6b7280", FontSize = "11px" } }
         },
         Yaxis =
         [
             new YAxis
             {
-                Labels = new YAxisLabels { Style = new AxisLabelStyle { Colors = "#8b949e", FontSize = "11px" } }
+                Labels = new YAxisLabels { Style = new AxisLabelStyle { Colors = "#6b7280", FontSize = "11px" } }
             }
         ],
-        Grid = new Grid { BorderColor = "#21262d", Row = new GridRow { Colors = ["transparent"] } },
-        Legend = new Legend { Labels = new LegendLabels { Colors = ["#8b949e"] }, Position = LegendPosition.Top },
-        Tooltip = new Tooltip { Theme = ApexCharts.Mode.Dark }
+        Grid = new Grid { BorderColor = "#d1d5db", Row = new GridRow { Colors = ["transparent"] } },
+        Legend = new Legend { Labels = new LegendLabels { Colors = ["#6b7280"] }, Position = LegendPosition.Top },
+        Tooltip = new Tooltip { Theme = ApexCharts.Mode.Light }
     };
 }

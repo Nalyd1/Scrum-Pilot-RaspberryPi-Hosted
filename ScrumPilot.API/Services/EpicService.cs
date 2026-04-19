@@ -14,7 +14,7 @@ namespace ScrumPilot.API.Services
 
         public async Task<IEnumerable<Epic>> GetAllEpicsAsync()
         {
-            return await _epicRepository.GetAllEpicsAsync();
+            return await _epicRepository.GetAllAsync();
         }
     }
 }

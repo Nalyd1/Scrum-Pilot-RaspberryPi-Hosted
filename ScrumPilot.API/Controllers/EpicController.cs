@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ScrumPilot.API.Services;
 using ScrumPilot.Data.Repositories;
 using ScrumPilot.Shared.Models;
 
@@ -8,17 +9,19 @@ namespace ScrumPilot.API.Controllers
     [Route("api/[controller]")]
     public class EpicController : ControllerBase
     {
+        private readonly IEpicService _epicService;
         private readonly IEpicRepository _epicRepository;
 
-        public EpicController(IEpicRepository epicRepository)
+        public EpicController(IEpicService epicService, IEpicRepository epicRepository)
         {
+            _epicService = epicService;
             _epicRepository = epicRepository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Epic>>> GetAll()
+        public async Task<ActionResult<IEnumerable<Epic>>> GetAllEpics()
         {
-            var epics = await _epicRepository.GetAllAsync();
+            var epics = await _epicService.GetAllEpicsAsync();
             return Ok(epics);
         }
 
