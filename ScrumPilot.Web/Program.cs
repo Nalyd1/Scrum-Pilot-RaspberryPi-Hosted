@@ -20,8 +20,9 @@ builder.Services.AddScoped<AuthenticationStateProvider>(
     sp => sp.GetRequiredService<JwtAuthStateProvider>());
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-// Read ApiBaseUrl from appsettings.json
-var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "/";
+// Read ApiBaseUrl from appsettings.json; "/" means same origin as the app
+var configuredUrl = builder.Configuration["ApiBaseUrl"] ?? "/";
+var apiBaseUrl = configuredUrl == "/" ? builder.HostEnvironment.BaseAddress : configuredUrl;
 
 // HttpClient that automatically attaches the JWT Bearer token to every request
 builder.Services.AddTransient<AuthHeaderHandler>();
