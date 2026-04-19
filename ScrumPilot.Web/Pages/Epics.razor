@@ -1,0 +1,155 @@
+@page "/epics"
+@inject HttpClient Http
+
+<PageTitle>Epics — ScrumPilot</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <div class="d-flex align-center justify-space-between mb-4">
+        <MudText Typo="Typo.h4">Epics</MudText>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="OpenCreateDialog">
+            New Epic
+        </MudButton>
+    </div>
+
+    @if (_loading)
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+    }
+    else if (_epics is null || !_epics.Any())
+    {
+        <MudAlert Severity="Severity.Info">No epics yet. Create one to get started.</MudAlert>
+    }
+    else
+    {
+        <MudGrid>
+            @foreach (var epic in _epics)
+            {
+                <MudItem xs="12" sm="6" md="4">
+                    <MudCard Elevation="3">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">@epic.Name</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                Created: @epic.DateCreated.ToString("MMM d, yyyy")
+                            </MudText>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Primary"
+                                       Size="Size.Small"
+                                       OnClick="() => OpenEditDialog(epic)">
+                                Edit
+                            </MudButton>
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Error"
+                                       Size="Size.Small"
+                                       OnClick="() => DeleteEpic(epic.EpicId)">
+                                Delete
+                            </MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+</MudContainer>
+
+@* ── Create / Edit Dialog ── *@
+<MudDialog @bind-Visible="_dialogVisible" Options="new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true }">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@(_isEditing ? "Edit Epic" : "New Epic")</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="_editName"
+                      Label="Epic Name"
+                      Variant="Variant.Outlined"
+                      Required="true" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseDialog">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="SaveEpic"
+                   Disabled="@(_saving || string.IsNullOrWhiteSpace(_editName))">
+            @(_saving ? "Saving…" : "Save")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private List<Epic>? _epics;
+    private bool _loading = true;
+    private bool _dialogVisible;
+    private bool _isEditing;
+    private bool _saving;
+    private int _editId;
+    private string _editName = "";
+
+    protected override async Task OnInitializedAsync() => await LoadEpics();
+
+    private async Task LoadEpics()
+    {
+        _loading = true;
+        try
+        {
+            _epics = await Http.GetFromJsonAsync<List<Epic>>("api/epic");
+        }
+        catch
+        {
+            _epics = new();
+        }
+        _loading = false;
+    }
+
+    private void OpenCreateDialog()
+    {
+        _isEditing = false;
+        _editId = 0;
+        _editName = "";
+        _dialogVisible = true;
+    }
+
+    private void OpenEditDialog(Epic epic)
+    {
+        _isEditing = true;
+        _editId = epic.EpicId;
+        _editName = epic.Name;
+        _dialogVisible = true;
+    }
+
+    private void CloseDialog() => _dialogVisible = false;
+
+    private async Task SaveEpic()
+    {
+        if (string.IsNullOrWhiteSpace(_editName)) return;
+
+        _saving = true;
+
+        if (_isEditing)
+        {
+            var epic = new Epic { EpicId = _editId, Name = _editName, DateCreated = _epics!.First(e => e.EpicId == _editId).DateCreated };
+            await Http.PutAsJsonAsync($"api/epic/{_editId}", epic);
+        }
+        else
+        {
+            var epic = new Epic { Name = _editName, DateCreated = DateTime.UtcNow };
+            await Http.PostAsJsonAsync("api/epic", epic);
+        }
+
+        _dialogVisible = false;
+        _saving = false;
+        await LoadEpics();
+    }
+
+    private async Task DeleteEpic(int id)
+    {
+        await Http.DeleteAsync($"api/epic/{id}");
+        await LoadEpics();
+    }
+}

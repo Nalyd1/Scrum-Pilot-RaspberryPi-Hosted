@@ -57,16 +57,6 @@ namespace ScrumPilot.Data.Migrations
                 {
                     table.PrimaryKey("PK_Sprint", x => x.SprintId);
                 });
-
-            migrationBuilder.InsertData(
-                table: "Epic",
-                columns: new[] { "EpicId", "Name", "DateCreated" },
-                values: new object[] { 1, "Scrum Board Filtering", new DateTime(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc) });
-
-            migrationBuilder.InsertData(
-                table: "Sprint",
-                columns: new[] { "SprintId", "SprintGoal", "StartDate", "EndDate", "IsOpen", "DateClosed" },
-                values: new object[] { 1, "Enable scrum board story filtering by sprint and epic", new DateTime(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc), new DateTime(2026, 4, 24, 0, 0, 0, DateTimeKind.Utc), true, null });
         }
 
         /// <inheritdoc />

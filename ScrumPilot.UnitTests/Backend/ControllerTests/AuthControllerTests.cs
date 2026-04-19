@@ -10,6 +10,7 @@ namespace ScrumPilot.UnitTests.Backend.ControllerTests
     public class AuthControllerTests
     {
         private readonly UserManager<ApplicationUser> _mockUserManager;
+        private readonly RoleManager<IdentityRole> _mockRoleManager;
         private readonly IConfiguration _mockConfig;
         private readonly AuthController _controller;
 
@@ -22,13 +23,17 @@ namespace ScrumPilot.UnitTests.Backend.ControllerTests
                 Substitute.For<IUserStore<ApplicationUser>>(),
                 null, null, null, null, null, null, null, null);
 
+            _mockRoleManager = Substitute.For<RoleManager<IdentityRole>>(
+                Substitute.For<IRoleStore<IdentityRole>>(),
+                null, null, null, null);
+
             _mockConfig = Substitute.For<IConfiguration>();
             _mockConfig["Jwt:Key"].Returns(TestJwtKey);
             _mockConfig["Jwt:Issuer"].Returns("ScrumPilot.API");
             _mockConfig["Jwt:Audience"].Returns("ScrumPilot.Web");
             _mockConfig["Jwt:ExpiresInHours"].Returns("8");
 
-            _controller = new AuthController(_mockUserManager, _mockConfig);
+            _controller = new AuthController(_mockUserManager, _mockRoleManager, _mockConfig);
         }
 
         [Fact]

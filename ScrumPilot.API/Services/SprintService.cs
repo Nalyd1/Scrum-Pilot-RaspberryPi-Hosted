@@ -14,7 +14,7 @@ namespace ScrumPilot.API.Services
 
         public async Task<IEnumerable<Sprint>> GetAllSprintsAsync()
         {
-            return await _sprintRepository.GetAllSprintsAsync();
+            return await _sprintRepository.GetAllAsync();
         }
     }
 }

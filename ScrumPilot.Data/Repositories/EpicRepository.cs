@@ -13,11 +13,41 @@ namespace ScrumPilot.Data.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<Epic>> GetAllEpicsAsync()
+        public async Task<IEnumerable<Epic>> GetAllAsync()
         {
             return await _context.Epics
-                .OrderBy(e => e.Name)
+                .OrderByDescending(e => e.DateCreated)
                 .ToListAsync();
+        }
+
+        public async Task<Epic?> GetByIdAsync(int id)
+        {
+            return await _context.Epics.FindAsync(id);
+        }
+
+        public async Task<Epic> AddAsync(Epic epic)
+        {
+            epic.DateCreated = DateTime.UtcNow;
+            _context.Epics.Add(epic);
+            await _context.SaveChangesAsync();
+            return epic;
+        }
+
+        public async Task<Epic> UpdateAsync(Epic epic)
+        {
+            _context.Entry(epic).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return epic;
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var epic = await _context.Epics.FindAsync(id);
+            if (epic == null) return false;
+
+            _context.Epics.Remove(epic);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

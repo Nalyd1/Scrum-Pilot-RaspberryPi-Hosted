@@ -75,6 +75,10 @@ namespace ScrumPilot.API.Controllers
                 return Ok(pbi);
             }
 
+            catch (InvalidOperationException ex) when (ex.Message.Contains("AI features are unavailable"))
+            {
+                return StatusCode(503, ex.Message);
+            }
             catch (InvalidOperationException ex)
             {
                 return BadRequest($"Failed to generate AI story: {ex.Message}");
@@ -96,8 +100,19 @@ namespace ScrumPilot.API.Controllers
         [HttpPost("ImprovePbi")]
         public async Task<ActionResult<List<ProductBacklogItem>>> ImprovePbi([FromBody] ProductBacklogItem pbi)
         {
-            var improvedPbi = await _pbiService.ImprovePbiAsync(pbi);
-            return Ok(improvedPbi);
+            try
+            {
+                var improvedPbi = await _pbiService.ImprovePbiAsync(pbi);
+                return Ok(improvedPbi);
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("AI features are unavailable"))
+            {
+                return StatusCode(503, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Failed to improve PBI: {ex.Message}");
+            }
         }
 
         [HttpPost("createStory")]

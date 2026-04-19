@@ -414,6 +414,7 @@ else
     [Parameter] public ScrumPilot.Shared.Models.ProductBacklogItem? PbiModel { get; set; }
     [Parameter] public EventCallback<ScrumPilot.Shared.Models.ProductBacklogItem> OnSave { get; set; }
     [Parameter] public EventCallback<int> OnDelete { get; set; }
+    [Parameter] public bool StartInEditMode { get; set; }
 
     // Edit mode state
     private bool isEditMode = false;
@@ -439,6 +440,11 @@ else
     {
         await LoadEpics();
         await LoadSprints();
+
+        if (StartInEditMode && PbiModel != null)
+        {
+            StartEdit();
+        }
     }
 
     private async Task LoadEpics()

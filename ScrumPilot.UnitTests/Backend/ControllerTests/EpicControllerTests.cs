@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using ScrumPilot.API.Controllers;
 using ScrumPilot.API.Services;
+using ScrumPilot.Data.Repositories;
 using ScrumPilot.Shared.Models;
 using Xunit;
 
@@ -10,12 +11,14 @@ namespace ScrumPilot.UnitTests.Backend.ControllerTests
     public class EpicControllerTests
     {
         private readonly IEpicService _mockEpicService;
+        private readonly IEpicRepository _mockEpicRepository;
         private readonly EpicController _controller;
 
         public EpicControllerTests()
         {
             _mockEpicService = Substitute.For<IEpicService>();
-            _controller = new EpicController(_mockEpicService);
+            _mockEpicRepository = Substitute.For<IEpicRepository>();
+            _controller = new EpicController(_mockEpicService, _mockEpicRepository);
         }
 
         [Fact]
